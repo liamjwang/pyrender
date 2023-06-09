@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "duck.py",
             "console": "integratedTerminal",
-            "justMyCode": false,
+            "justMyCode": true,
+            // "justMyCode": false,
             "cwd": "${workspaceFolder}/examples",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
