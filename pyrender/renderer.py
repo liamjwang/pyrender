@@ -403,7 +403,6 @@ class Renderer(object):
         if flags & RenderFlags.OFFSCREEN:
             return self._read_main_framebuffer(scene, flags)
         else:
-            raise ValueError('TODO')
             return
 
     def _shadow_mapping_pass(self, scene, light_node, flags):
@@ -568,46 +567,32 @@ class Renderer(object):
             # Set blending options
             if material.alphaMode == 'BLEND':
                 glEnable(GL_BLEND)
-                glBlendFunc(GL_ONE, GL_ONE)
-                # glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             else:
-                # raise ValueError('TODO')
                 glEnable(GL_BLEND)
-                glBlendFunc(GL_ONE, GL_ONE)
-                # glBlendFunc(GL_ONE, GL_ZERO)
+                glBlendFunc(GL_ONE, GL_ZERO)
 
-            # # Set wireframe mode
-            # wf = material.wireframe
-            # if flags & RenderFlags.FLIP_WIREFRAME:
-            #     wf = not wf
-            # if (flags & RenderFlags.ALL_WIREFRAME) or wf:
-            #     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
-            # else:
-            #     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+            # Set wireframe mode
+            wf = material.wireframe
+            if flags & RenderFlags.FLIP_WIREFRAME:
+                wf = not wf
+            if (flags & RenderFlags.ALL_WIREFRAME) or wf:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
+            else:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-
-            glDisable(GL_CULL_FACE)
-
-            # # Set culling mode
-            # if material.doubleSided or flags & RenderFlags.SKIP_CULL_FACES:
-            #     glDisable(GL_CULL_FACE)
-            # else:
-            #     glEnable(GL_CULL_FACE)
-            #     glCullFace(GL_BACK)
+            # Set culling mode
+            if material.doubleSided or flags & RenderFlags.SKIP_CULL_FACES:
+                glDisable(GL_CULL_FACE)
+            else:
+                glEnable(GL_CULL_FACE)
+                glCullFace(GL_BACK)
         else:
-            # glEnable(GL_CULL_FACE)
-            # glEnable(GL_BLEND)
-            # glCullFace(GL_BACK)
-            # glBlendFunc(GL_ONE, GL_ZERO)
-            # glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-
-            # glDisable(GL_CULL_FACE)
-            # glEnable(GL_BLEND)
-            # glCullFace(GL_BACK)
-            # glBlendFunc(GL_ZERO, GL_ZERO)
-            # glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-            pass
+            glEnable(GL_CULL_FACE)
+            glEnable(GL_BLEND)
+            glCullFace(GL_BACK)
+            glBlendFunc(GL_ONE, GL_ZERO)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
         # Set point size if needed
         glDisable(GL_PROGRAM_POINT_SIZE)
@@ -1030,8 +1015,7 @@ class Renderer(object):
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0)
 
         glViewport(0, 0, self.viewport_width, self.viewport_height)
-        glDisable(GL_DEPTH_TEST)
-        # glEnable(GL_DEPTH_TEST)
+        glEnable(GL_DEPTH_TEST)
         glDepthMask(GL_TRUE)
         glDepthFunc(GL_LESS)
         glDepthRange(0.0, 1.0)
@@ -1081,7 +1065,7 @@ class Renderer(object):
 
             glBindRenderbuffer(GL_RENDERBUFFER, self._main_cb)
             glRenderbufferStorage(
-                GL_RENDERBUFFER, GL_RGBA32F,
+                GL_RENDERBUFFER, GL_RGBA,
                 self.viewport_width, self.viewport_height
             )
 
@@ -1106,7 +1090,7 @@ class Renderer(object):
             self._main_cb_ms, self._main_db_ms = glGenRenderbuffers(2)
             glBindRenderbuffer(GL_RENDERBUFFER, self._main_cb_ms)
             glRenderbufferStorageMultisample(
-                GL_RENDERBUFFER, 4, GL_RGBA32F,
+                GL_RENDERBUFFER, 4, GL_RGBA,
                 self.viewport_width, self.viewport_height
             )
             glBindRenderbuffer(GL_RENDERBUFFER, self._main_db_ms)
@@ -1189,15 +1173,15 @@ class Renderer(object):
         # Read color
         if flags & RenderFlags.RGBA:
             color_buf = glReadPixels(
-                0, 0, width, height, GL_RGBA, GL_FLOAT
+                0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE
             )
-            color_im = np.frombuffer(color_buf, dtype=np.float32)
+            color_im = np.frombuffer(color_buf, dtype=np.uint8)
             color_im = color_im.reshape((height, width, 4))
         else:
             color_buf = glReadPixels(
-                0, 0, width, height, GL_RGB, GL_FLOAT
+                0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE
             )
-            color_im = np.frombuffer(color_buf, dtype=np.float32)
+            color_im = np.frombuffer(color_buf, dtype=np.uint8)
             color_im = color_im.reshape((height, width, 3))
         color_im = np.flip(color_im, axis=0)
 

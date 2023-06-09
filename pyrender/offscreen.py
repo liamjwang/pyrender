@@ -101,7 +101,6 @@ class OffscreenRenderer(object):
             flags |= RenderFlags.OFFSCREEN
             retval = self._renderer.render(scene, flags, seg_node_map)
         else:
-            raise ValueError('TODO')
             self._renderer.render(scene, flags, seg_node_map)
             depth = self._renderer.read_depth_buf()
             if flags & RenderFlags.DEPTH_ONLY:
