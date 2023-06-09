@@ -167,28 +167,28 @@ vec3 get_normal()
 {
 #ifdef HAS_NORMAL_TEX
 
-#ifndef HAS_TANGENTS
-    vec3 pos_dx = dFdx(frag_position);
-    vec3 pos_dy = dFdy(frag_position);
-    vec3 tex_dx = dFdx(vec3(uv_0, 0.0));
-    vec3 tex_dy = dFdy(vec3(uv_0, 0.0));
-    vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
+// #ifndef HAS_TANGENTS
+//     vec3 pos_dx = dFdx(frag_position);
+//     vec3 pos_dy = dFdy(frag_position);
+//     vec3 tex_dx = dFdx(vec3(uv_0, 0.0));
+//     vec3 tex_dy = dFdy(vec3(uv_0, 0.0));
+//     vec3 t = (tex_dy.t * pos_dx - tex_dx.t * pos_dy) / (tex_dx.s * tex_dy.t - tex_dy.s * tex_dx.t);
 
-#ifdef NORMAL_LOC
-    vec3 ng = normalize(frag_normal);
-#else
-    vec3 = cross(pos_dx, pos_dy);
-#endif
+// #ifdef NORMAL_LOC
+//     vec3 ng = normalize(frag_normal);
+// #else
+//     vec3 = cross(pos_dx, pos_dy);
+// #endif
 
-    t = normalize(t - ng * dot(ng, t));
-    vec3 b = normalize(cross(ng, t));
-    mat3 tbn_n = mat3(t, b, ng);
+//     t = normalize(t - ng * dot(ng, t));
+//     vec3 b = normalize(cross(ng, t));
+//     mat3 tbn_n = mat3(t, b, ng);
 
-#else
+// #else
 
-    mat3 tbn_n = tbn;
+//     mat3 tbn_n = tbn;
 
-#endif
+// #endif
 
     vec3 n = texture(material.normal_texture, uv_0).rgb;
     n = normalize(tbn_n * ((2.0 * n - 1.0) * vec3(1.0, 1.0, 1.0)));
@@ -443,7 +443,11 @@ void main()
     color *= color_multiplier;
 #endif
 
-    frag_color = clamp(vec4(pow(color.xyz, vec3(1.0/2.2)), color.a * base_color.a), 0.0, 1.0);
+    // frag_color = clamp(vec4(pow(color.xyz, vec3(1.0/2.2)), color.a * base_color.a), 0.0, 1.0);
+    float mult = gl_FrontFacing ? -1 : 1;
+    frag_color = vec4(length(frag_position-cam_pos)*mult,0,0,1);
+    // frag_color = vec4(gl_FrontFacing ? 0 : 1,0,0,1);
+    // cam_pos
 
 #else
     // TODO GLOSSY MATERIAL BRDF
